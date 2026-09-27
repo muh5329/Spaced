@@ -1,0 +1,11 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M4 Pro (Apple9)
+
+Movie Maker mode enabled, recording movie in 1440×900 @ 30 FPS...
+--------------------------------------------------------------------------------
+Done recording movie at path: /Users/mun/Documents/Projects/Spaced/docs/screenshots/interior-3d-motion.avi
+684 frames at 30 FPS (movie length: 00:00:22:24), recorded in 00:00:14 (157% of real-time speed).
+CPU render time: 0.11 seconds (average: 0.16 ms/frame)
+GPU render time: 0.00 seconds (average: 0.00 ms/frame)
+Encoding time: 3.62 seconds (average: 5.29 ms/frame)
+--------------------------------------------------------------------------------
