@@ -184,3 +184,17 @@ The requested seven specialties have stable named crew records and individual as
 **Native interaction follow-up:** the implementation agent completed a fresh launch of the final PCK from `/tmp` using a temporary external probe that logged delivered mouse/key events. The critic read `native-interior-3d-probe.log` and inspected `native-3d-manual-arrival.png` and `native-3d-duty-restored.png`. The screenshots show Nia at a manually ordered location with `AWAITING ORDERS` and zero hydroponics staffing, then back at the planting bed with `ON DUTY` and 100% staffing. The log records native click, right-click, wheel and Tab events without engine warnings/errors. The implementation agent reports successful pause/resume, roster selection, floor movement, station reassignment, wheel zoom, Tab to flight and back, and ordinary window close. This completes that bounded native interaction pass; the cause of the earlier window's intermittent input delivery remains unestablished. The critic did not perform these OS interactions independently, and this is not a broad human playtest.
 
 **Current bounded verdict:** the modeled-interior and reviewed movement requirements pass the source, regression and supplied native-evidence assessment. No concrete movement finding remains open from this review. Sustained performance and all-platform input certification remain outside its scope; the visual-fidelity limits above are unchanged.
+
+## Frontier travel and commissions follow-up — 2026-09-27
+
+The independent critic reviewed the new network/domain, generated sectors, voyage commands and station UI, then inspected the network, commission board, Cinder and local-chart captures. This was source/visual review, with no independent test execution or file edits. It does not change the prior art/AAA verdict.
+
+Three initial findings were fixed and rechecked:
+
+| Finding | Correction |
+| --- | --- |
+| Tracking or abandoning a job in flight could checkpoint combat progress and allow reload at a safe station. | Flight-log changes remain in memory until a safe checkpoint. Only docked job actions write immediately. Version 5 also retains hull/shield/boost at jump arrivals and on Continue. |
+| Skipping consumed freight altered later seeded asteroid geometry. | Each indexed freight rotation draw occurs before the consumed check; revisit tests compare all surviving asteroid seeds, radii and positions. |
+| Finite depleted systems could continue offering impossible supply jobs. | Acceptance checks all remaining world stock plus onboard cargo, minus active commitments. Resolved patrols and decoded relays also cannot generate repeat-paid commissions. |
+
+The final recheck reported no additional critical correctness or UX blocker in the reviewed scope. The critic read implementation-agent evidence of 135 frontier checks and 200 core checks passing, plus a no-teleport/grant/direct-kill pilot completing three commissions across four jumps in 170 simulated seconds. The later frontier suite adds seven local-chart course checks (142 total). Rendered playthrough/native input and final packaging were performed by the implementation agent, not inferred as independent critic execution. Native testing subsequently exposed a notification/toolbar overlap, corrected by moving/wrapping notices and keeping danger banners below them.

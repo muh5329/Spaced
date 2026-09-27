@@ -1,46 +1,45 @@
-# Validation — modeled 3D interior
+# Validation — frontier expansion 1.1.0
 
-Revision tested: 27 September 2026. Godot 4.7 stable (`5b4e0cb0f`), macOS Apple M4 Pro, Metal Forward+. Historical results, including the retired 2D interior, are in `VALIDATION_HISTORY.md`.
+Tested 27 September 2026 with Godot 4.7 stable (`5b4e0cb0f`), Apple M4 Pro and Metal Forward+. Earlier interior validation is retained in `VALIDATION_HISTORY.md`.
 
 ## Executed checks
 
 | Test | Result | Evidence |
 | --- | --- | --- |
-| Existing campaign/fleet/cargo suite | 200 passed / 0 failed | `test-results/suite.log` |
-| Crew, resources, station controls and persistence | 80 passed / 0 failed | `test-results/interior-suite.log` |
-| New 3D geometry, movement and animation suite | 61 passed / 0 failed | `test-results/interior-3d-geometry.log` |
-| Standalone PCK, headless 3D suite from `/tmp` | 61 passed / 0 failed | `test-results/interior-3d-packaged.log` |
-| Standalone PCK, Metal-rendered 3D suite from `/tmp` | 61 passed / 0 failed | `test-results/interior-3d-packaged-rendered.log` |
-| Standalone PCK, existing interior suite | 80 passed / 0 failed | `test-results/interior-packaged-suite.log` |
-| Full campaign, headless and rendered | Both won in 209 simulated seconds; failures empty | `test-results/pilot-headless.log`, `pilot-rendered.log` |
+| Original campaign, fleet, cargo, selection and spatial flight | 200 passed / 0 failed | `test-results/core-frontier.log` |
+| Crew, resources, station controls and saves | 80 passed / 0 failed | `test-results/interior-frontier.log` |
+| Modeled 3D interior, routes, articulated animation | 61 passed / 0 failed | `test-results/interior-3d-frontier.log` |
+| New frontier domain and runtime suite | 142 passed / 0 failed | `test-results/frontier-suite.log` |
+| Final standalone PCK, headless frontier suite from `/tmp` | 142 passed / 0 failed | `test-results/frontier-packaged.log` |
+| Final standalone PCK, rendered frontier suite from `/tmp` | 142 passed / 0 failed | `test-results/frontier-packaged-rendered.log` |
+| New multi-system pilot, headless | 3 commissions, 4 jumps, 170 simulated seconds, zero failures | `test-results/frontier-playthrough.log` |
+| New multi-system pilot, Metal rendered | Same complete loop, zero failures | `test-results/frontier-playthrough-rendered.log` |
+| Original story pilot after expansion | Victory in 209 simulated seconds, zero failures | `test-results/story-frontier-playthrough.log` |
 
-These final logs have no engine error or warning. Tests/captures use isolated checkpoint paths. The critic independently executed the current 61-check 3D suite with a clean result; see `CRITIC_REVIEW.md` for scope and attribution.
+The four source suites total **483 passing checks**. Standalone runs repeat the frontier checks; they are not counted as additional unique coverage. All listed final logs are free of engine errors/warnings. Tests use isolated save paths and do not overwrite the player's expedition.
 
-The 3D suite checks modeled fixture/actor presence, all 81 room-to-room routes with samples every 0.1 m against wall/furniture footprints, three reachable bed approaches, physical door motion, actual leg-joint transform changes, work clips, orbit projection, direct orders removing staffing, arrival holding position, return to work, mid-route reassignment, fractional-tick command continuity while paused, saved route restoration, corrupted path rejection, stable shared workstations, raised bridge arrival, old dormitory migration, incapacitated poses, and both settled and mid-transfer crew departures/returns on Latch.
+Frontier coverage includes graph connectivity, bidirectional routes, reproducible generation, changed seeds, disconnected jump rejection, all nine systems, three-contract limit, issuer-only deliveries, exact physical ore/freight removal, duplicate payment rejection, named-patrol progress, story isolation, survey data, abandonment, office rotations, resolved-target suppression, exhausted-world supply availability, legacy migration, malformed save rejection, unsafe/deployed/empty-battery/pursued jump rejection, hull/resource continuity, single signal wiring after rebuilding, arrival saves and Continue, hazard telegraph/discharge/altitude avoidance, persistent kills/deposits, stable rock geometry after salvage, risk-scaled populations, safe arrivals, and actual flight courses issued from local-chart clicks.
 
-The campaign pilot uses actual ship routes, drone extraction/return/unload, crewed towing, cargo delivery, station trades/upgrades, projectile combat, core retrieval and beacon completion. Both runs finish with three freight deliveries, 24 ferrite, three kills and 160 hull. No progression grants or teleportation bypass the campaign. This proves reachability, not human pacing or difficulty.
+## Gameplay reachability
 
-## Native interaction
+`frontier_playthrough.gd` uses ordinary movement, dispatch, attack, interaction and station commands. Starting with the base ship, it flies to Meridian, accepts a 16 t procurement job, has a drone physically mine/return/unload the ore, docks and delivers, buys weapon/shield upgrades, accepts patrol and survey commissions, jumps to Cinder Reach, destroys its patrol with real projectiles, travels through Orison to Glasswake, decodes its relay, returns to Meridian and claims both payments. A saved snapshot confirms all three completed commissions and the home-system location. No teleports, granted resources, direct kills or forced objectives are used. Both headless and rendered versions finish in 170 simulated seconds at 4× time.
 
-Launched the standalone bundle from `/tmp`. Native computer input selected an actual 3D engineer and assigned quarters while paused. A subsequent input-delivery interruption prevented completing that first window's test; no game or tooling cause was established from that run.
+The original pilot still performs climbs/dives, three crewed salvage deliveries, 24 t of drone mining, trades/upgrades, all three authored raiders, core towing and the story beacon. It reaches victory in 209 simulated seconds. These automated pilots prove reachability, not human difficulty balance or pacing.
 
-A fresh standalone run loaded the same PCK with a temporary external input probe. The probe only logged mouse/key events; it did not issue orders or change game rules. Native clicks then successfully paused/resumed, selected Nia, issued a right-click floor order, waited for physical arrival with `AWAITING ORDERS`/zero hydroponics staffing, reassigned Hydroponics, and observed walking followed by `ON DUTY`/restored staffing. Native wheel input zoomed the 3D camera. Tab returned to flight and back. The window closed cleanly through its ordinary close control. `test-results/native-interior-3d-probe.log` records the delivered input and contains no errors/warnings.
+## Native controls and visual inspection
 
-`native-3d-manual-arrival.png` and `native-3d-duty-restored.png` record that interaction. No complete broad human playtest or all-platform input certification is implied.
+The bundled engine/PCK launched from `/tmp` using an isolated external setup/probe script. The fixture only opened a seeded docked expedition; subsequent game actions came from native computer mouse/keyboard input. The probe logged mode, system, active jobs, tracking and navigation state without issuing commands.
 
-## Visual and motion evidence
+Native input accepted a bounty, pressed J for the chart, clicked its jump button, arrived in Cinder Reach, pressed L for the active log, returned with Escape, opened M and clicked the transit relay. The log records `navigator=true`, followed by arrival (`false`), in the generated system. The window closed normally. See `test-results/native-frontier.log`.
 
-- `screenshots/native-interior-3d-final.png`: final embedded PCK, 1440×900 actual renderer capture from `/tmp`. The smaller `native-interior-3d-720p.png` verifies the layout at 1152×720; secondary text is small but controls remain visible.
-- `interior-3d-default.png` and `interior-3d-reverse.png`: opposite camera angles of the same modeled room geometry.
-- `interior-3d-engineering.png` and `interior-3d-crew.png`: equipment and jointed-character closeups.
-- `interior-3d-motion.mp4`: 22.8 seconds at 1440×900/30 FPS, actual Godot movie recording. It shows Ivo leaving Engineering, walking through opening doors, approaching/resting at a bed, and camera orbit revealing model backs. It contains no image-generation or post-render animation; FFmpeg only encodes the engine AVI to H.264/AAC.
+Native inspection found a notification/toolbar overlap. Notifications now wrap below the toolbar and danger banners move below active notices; world-input blocking matches the drawn rectangles. The final packaged build repeated native acceptance, J, jump and arrival after this change (`native-frontier-final.log`). The full core suite was rerun successfully after the notification changes.
 
-`tests/interior_showcase.gd` reproduces these views and the recording. It sends a genuine assignment command and changes the inspection camera. It is staged visual evidence, distinct from the unstaged campaign pilot.
+The actual engine renders under `screenshots/frontier-*.png` show the network, four station offers, animated departure/transition, generated Cinder/Veil scenes, arrival guidance, and a local chart. `frontier-playthrough-complete.png` records the rendered pilot's completed board. `tests/frontier_showcase.gd` reproduces the staged views. Short capture FPS samples include shader/startup warmup and are not a sustained benchmark. Existing `interior-3d-motion.mp4` and the 61-check interior suite remain evidence for the real 3D crew/interior.
 
-The final native capture sampled 120 FPS, 5,235 draw calls and 9,836,894 submitted primitives including shadow/outline passes. This is a brief local observation on the M4 Pro, not a sustained benchmark. Multiple shadow passes and detailed modeled foliage remain costly; no low-end or Intel performance promise is made.
+## Review and packaging
 
-## Packaging and scope
+The independent adversarial critic found three concrete issues: unsafe flight-log checkpointing, salvage-dependent RNG drift, and impossible delivery offers after depletion. All were fixed and rechecked. The critic's second source/visual pass found no additional critical blocker; it reviewed the implementation-agent logs rather than independently executing them. See `CRITIC_REVIEW.md` for attribution and scope.
 
-`tools/build_macos.sh` produced `builds/Wayfarer.app` and `Wayfarer-macOS.zip`. `codesign --verify --deep --strict` succeeds. The native app contains the matching universal runtime, PCK, fonts/license notices and `INTERIOR_3D.md`. The source archive contains editable source, tests, docs and final media; caches and native binaries are excluded. The retired image assets under ignored documentation are absent from the PCK; `test-results/pack-contents.log` independently confirms the 3D model exists and both old image paths do not.
+`tools/build_macos.sh` produces the standalone 1.1.0 bundle/ZIP with the matching universal engine, PCK, icon, licenses, `INTERIOR_3D.md` and `FRONTIER.md`. `codesign --verify --deep --strict` passes. Actual packaged tests run from `/tmp`, independent of a source-directory working path. The editable source archive excludes native builds/caches and includes code, tests, decisions, validation and media. `builds/SHA256SUMS.txt` records archive hashes.
 
-The active interior is actual 3D throughout, with seven articulated crew and all nine functional stations. No reviewed movement defect remains open after the critic's fixes. Art fidelity remains below exact reference parity: industrial geometry, materials and rigid articulated people are stylized interpretations. Crew routes avoid static objects but do not dynamically avoid each other. The critic has not approved an AAA-quality or exact-match claim.
+The implemented frontier is nine finite systems with four commission types, three generated hostile roles and timed ion hazards. It is not an infinite/replenishing universe or a faction simulator. Art fidelity remains a stylized reconstruction, not exact reference parity or an AAA endorsement. Intel/low-end hardware and broad human playtesting remain untested.

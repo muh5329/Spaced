@@ -2,8 +2,9 @@ Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
 Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M4 Pro (Apple9)
 
 CAPTURE frontier-commissions fps=2.0
-CAPTURE frontier-network fps=32.0
-CAPTURE frontier-jump fps=115.0
-CAPTURE frontier-cinder fps=55.0
-CAPTURE frontier-local-chart fps=38.0
-CAPTURE frontier-veil fps=38.0
+CAPTURE frontier-network fps=63.0
+CAPTURE frontier-jump fps=116.0
+CAPTURE frontier-arrival fps=25.0
+CAPTURE frontier-cinder fps=87.0
+CAPTURE frontier-local-chart fps=87.0
+CAPTURE frontier-veil fps=25.0

@@ -346,13 +346,19 @@ func _draw() -> void:
 			draw_confirm()
 		"lost", "won":
 			draw_ending()
-	if toast_time > 0 and game.mode not in ["menu", "interior"]:
-		var width := minf(
-			920, regular.get_string_size(toast_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 64
-		)
-		panel(Rect2(800 - width / 2, 120, width, 48), minf(0.95, toast_time))
-		draw_rect(Rect2(800 - width / 2, 120, 3, 48), AMBER)
-		ink(toast_text, Vector2(826 - width / 2, 151), 19, Color(WHITE, minf(1, toast_time)))
+	if toast_time > 0 and game.mode not in ["menu", "interior", "jump"]:
+		var bounds := toast_bounds()
+		panel(bounds, minf(0.95, toast_time))
+		draw_rect(Rect2(bounds.position, Vector2(3, bounds.size.y)), AMBER)
+		var lines := toast_lines()
+		for i in lines.size():
+			ink(
+				lines[i],
+				bounds.position + Vector2(24, 28 + i * 24),
+				19,
+				Color(WHITE, minf(1, toast_time))
+			)
+
 	if damage_flash > 0 and game.mode == "flight":
 		draw_rect(Rect2(0, 0, 1600, 1000), Color(0.8, 0.18, 0.07, damage_flash * 0.1))
 		for i in 4:
@@ -461,13 +467,15 @@ func draw_flight() -> void:
 		ink(objectives[i], Vector2(83, 244 + i * 34), 16, WHITE if i == 0 else MUTED)
 	var hazard: String = game.sector.hazard_warning()
 	if not hazard.is_empty():
-		panel(Rect2(520, 242, 740, 44), 0.94)
-		ink(hazard, Vector2(543, 270), 18, AMBER)
+		var hazard_y := 308 if toast_time > 0 else 242
+		panel(Rect2(520, hazard_y, 740, 44), 0.94)
+		ink(hazard, Vector2(543, hazard_y + 28), 18, AMBER)
 	if game.sector.threat_level() > 0:
-		panel(Rect2(612, 190, 376, 46), 0.88)
+		var threat_y := 250 if toast_time > 0 else 190
+		panel(Rect2(612, threat_y, 376, 46), 0.88)
 		ink(
 			"HOSTILE CONTACTS  /  %d" % game.sector.threat_level(),
-			Vector2(656, 219),
+			Vector2(656, threat_y + 29),
 			18,
 			MeshKit.RED,
 			bold
@@ -689,12 +697,11 @@ func blocks_world_input(screen: Vector2) -> bool:
 	if game.move_preview.active:
 		panels.append(Rect2(461, 739, 688, 69))
 	if game.sector.threat_level() > 0:
-		panels.append(Rect2(612, 190, 376, 46))
+		panels.append(Rect2(612, 250 if toast_time > 0 else 190, 376, 46))
+	if not game.sector.hazard_warning().is_empty():
+		panels.append(Rect2(520, 308 if toast_time > 0 else 242, 740, 44))
 	if toast_time > 0:
-		var width := minf(
-			920, regular.get_string_size(toast_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 64
-		)
-		panels.append(Rect2(800 - width / 2, 120, width, 48))
+		panels.append(toast_bounds())
 	return (
 		point.distance_to(Vector2(1450, 844)) < 98
 		or panels.any(func(rect): return rect.has_point(point))
@@ -706,7 +713,12 @@ func navigation_marker(point: Vector3) -> Vector2:
 	var screen := world_to_hud(point)
 	if game.camera.is_position_behind(point):
 		screen = Vector2(800, 500) - (screen - Vector2(800, 500)).normalized() * 2000
-	return screen.clamp(Vector2(415, 265), Vector2(1510, 710))
+	var top := 265
+	if not game.sector.hazard_warning().is_empty():
+		top = 370 if toast_time > 0 else 302
+	elif game.sector.threat_level() > 0 and toast_time > 0:
+		top = 315
+	return screen.clamp(Vector2(415, top), Vector2(1510, 710))
 
 
 func navigation_goal_at(screen: Vector2) -> Variant:
@@ -1180,8 +1192,8 @@ func draw_ending() -> void:
 	else:
 		diamond(Vector2(800, 268), 27, MeshKit.RED)
 		ink("SIGNAL LOST", Vector2(609, 390), 80, WHITE, display)
-		ink("The crew's escape capsule made it back to Meridian.", Vector2(535, 462), 23, WHITE)
-		ink("Retry restores your last dock checkpoint.", Vector2(619, 502), 18, MUTED)
+		ink("The crew's escape capsule reached a safe port.", Vector2(535, 462), 23, WHITE)
+		ink("Retry restores your last station or jump checkpoint.", Vector2(619, 502), 18, MUTED)
 
 
 func chart_goal_at(screen: Vector2) -> Variant:
@@ -1193,3 +1205,24 @@ func chart_goal_at(screen: Vector2) -> Variant:
 		if point.distance_to(marker) < 26:
 			return entry[1]
 	return null
+
+
+func toast_lines() -> Array[String]:
+	var lines: Array[String] = []
+	var current := ""
+	for word in toast_text.split(" "):
+		var next := current + ("" if current.is_empty() else " ") + word
+		if (
+			not current.is_empty()
+			and regular.get_string_size(next, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x > 812
+		):
+			lines.append(current)
+			current = word
+		else:
+			current = next
+	lines.append(current)
+	return lines
+
+
+func toast_bounds() -> Rect2:
+	return Rect2(410, 160 if game.mode == "flight" else 170, 860, 24 + 24 * toast_lines().size())

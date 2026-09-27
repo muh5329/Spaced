@@ -132,9 +132,9 @@ The exterior retains the long axial hull, tapered bridge, grey armor, ochre coll
 
 ## Checkpoints
 
-Docking, station transactions, contract turn-ins and victory save. **In-flight progress is not saved on quit.** All work craft must be recovered before a checkpoint can be written; transient jobs, pods in transit, tow state and reservations are not serialized. Death/retry restores the last dock checkpoint, including cargo and resource depletion as of that checkpoint.
+Docking, station transactions, contract turn-ins, completed inter-system jumps and victory save. **In-flight progress is not saved on quit.** All work craft must be recovered before a checkpoint can be written; transient jobs, pods in transit, tow state and reservations are not serialized. Death/retry restores the last dock or jump-arrival checkpoint, including cargo and resource depletion as of that checkpoint.
 
-Version 4 saves persist individual crew, duties, world positions, movement routes, remaining travel, health, fatigue, supplies, station condition, power switches and fabrication alongside the exact cargo layout. Version 3 saves migrate excessive dormitory assignments to available duties to respect the three physical beds, preserving crew health and supplies. Saves validate bounds, identities, capacity and pending output. Version 1/2 saves gain a coherent starting interior while preserving their cargo; version 1 numeric cargo migrates into slots. If necessary, a legacy save receives enough rack decks to preserve its existing legal load. Saves normally live at `~/Library/Application Support/Godot/app_userdata/Wayfarer/expedition.json`; tests and captures use separate files.
+Version 5 saves add explored/current systems, seeded generation, station contracts and checkpoint ship condition. Older versions migrate to the home network. Version 4 introduced individual crew, duties, world positions, movement routes, remaining travel, health, fatigue, supplies, station condition, power switches and fabrication alongside the exact cargo layout. Version 3 saves migrate excessive dormitory assignments to available duties to respect the three physical beds, preserving crew health and supplies. Saves validate bounds, identities, capacity and pending output. Version 1/2 saves gain a coherent starting interior while preserving their cargo; version 1 numeric cargo migrates into slots. If necessary, a legacy save receives enough rack decks to preserve its existing legal load. Saves normally live at `~/Library/Application Support/Godot/app_userdata/Wayfarer/expedition.json`; tests and captures use separate files.
 
 ## Domain, decisions and source
 
@@ -143,7 +143,7 @@ Version 4 saves persist individual crew, duties, world positions, movement route
 - [Validation evidence](docs/VALIDATION.md)
 - [Adversarial review](docs/CRITIC_REVIEW.md)
 
-`Expedition` composes `CargoBay` and `InteriorState`; `CrewMember` owns individual identity and duty state. These classes own persistent rules. `Ship → CommandShip → PlayerShip/SupportCraft` shares orders and steering; `SupportCraft → MiningDrone/SalvageTug` specializes work and payload handling. `FleetOperations` coordinates the three workers. Navigation, picking, camera, preview, audio and saves are composed systems. `InteriorLayout` defines a meter-space floor plan; `InteriorModel3D` assembles reusable `InteriorProps`; `InteriorNavigation` routes around their footprints; `CrewActor3D` renders joint animations; `InteriorDeck` owns the camera, ray picking and commands; `InteriorUI` presents live state and invokes domain commands. Cargo/ship models remain presentation.
+`Expedition` composes `CargoBay`, `InteriorState`, `StarNetwork` and `StationContracts`; `CrewMember` owns individual identity and duty state. These classes own persistent rules. `Ship → CommandShip → PlayerShip/SupportCraft` shares orders and steering; `SupportCraft → MiningDrone/SalvageTug` specializes work and payload handling. `FleetOperations` coordinates the three workers. Navigation, picking, camera, preview, audio and saves are composed systems. `InteriorLayout` defines a meter-space floor plan; `InteriorModel3D` assembles reusable `InteriorProps`; `InteriorNavigation` routes around their footprints; `CrewActor3D` renders joint animations; `InteriorDeck` owns the camera, ray picking and commands; `InteriorUI` presents live state and invokes domain commands. Cargo/ship models remain presentation.
 
 ```sh
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot
@@ -152,10 +152,11 @@ GODOT=/Applications/Godot.app/Contents/MacOS/Godot
 "$GODOT" --headless --path . --script res://tests/interior_suite.gd
 "$GODOT" --headless --path . --script res://tests/interior_3d_suite.gd
 "$GODOT" --headless --path . --script res://tests/playthrough.gd
+"$GODOT" --headless --path . --script res://tests/frontier_suite.gd
+"$GODOT" --headless --path . --script res://tests/frontier_playthrough.gd
 tools/build_macos.sh
 ```
 
 The pilot flies real routes, dispatches workers, waits for physical return/delivery, trades and upgrades, fights with actual projectiles, and reaches the ending. It does not teleport, grant resources or bypass progression. Capture modes can stage inspection scenes: `ship_detail`, `interior`, `cargo`, `mining_operations`, `tow_operations`, `flight`, `spatial`, `climb`, `manual`, `map`, `dock`, `combat`, `menu` and `won`.
 
 Geometry, joint animations, shaders and audio are authored/generated for this project. The rejected illustrated prototype is archived under `docs/reference/rejected-illustrated` and excluded from the game bundle. Font and engine notices are in [THIRD_PARTY.md](THIRD_PARTY.md). This remains a finished small expedition; the adversarial review does not endorse AAA quality, broad platform certification, or parity with Homeworld's feature set.
-# Spaced

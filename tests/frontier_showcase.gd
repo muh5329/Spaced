@@ -38,6 +38,7 @@ func run() -> void:
 	await capture("jump")
 	while game.mode == "jump":
 		await process_frame
+	await capture("arrival")
 	game.ui.toast_time = 0
 	game.player.selected = true
 	game.player.position = game.sector.wreck_position + Vector3(-7, 18, 30)

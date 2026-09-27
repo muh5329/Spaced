@@ -320,6 +320,24 @@ func test_runtime() -> void:
 			),
 			"System %d arrival is outside hostile activation" % system
 		)
+		game.toggle_map()
+		var goal_screen: Vector2 = (
+			(
+				Vector2(771, 535)
+				+ Vector2(game.sector.gate_position.x, game.sector.gate_position.z) * 2.7
+			)
+			* game.ui.size
+			/ Vector2(1600, 1000)
+		)
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = true
+		click.position = goal_screen
+		game._input(click)
+		check(
+			game.mode == "flight" and game.player.navigator.active(),
+			"Local chart click plots a real course in system %d" % system
+		)
 		game.voyage.open_chart()
 		await process_frame
 		game.voyage.close()
